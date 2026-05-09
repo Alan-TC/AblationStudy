@@ -1,0 +1,17 @@
+[io]
+ablation_result_folder = 'ablation/cidds/results'
+
+sample_dataset_folder = 'ablation/cidds/samples/datasets'
+sample_tracker_file = 'ablation/cidds/samples/generate_tracker.csv'
+
+reference_dataset_input = 'datasets/cidds/reference/ton.csv'
+real_test_dataset_input = 'datasets/cidds/real/cidds_test.csv'
+real_train_dataset_input = 'datasets/cidds/real/cidds_train.csv'
+
+flowmiagan_save_folder = 'ablation/cidds/results/flowmiagan'
+domias_save_folder = 'ablation/cidds/results/domias'
+dcr_save_folder = 'ablation/cidds/results/dcr'
+
+[test]
+start_test = 1
+end_test = 2
