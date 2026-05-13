@@ -14,4 +14,4 @@ dcr_save_folder = 'ablation/cidds/results/dcr'
 
 [test]
 start_test = 1
-end_test = 2
+# end_test = 24
