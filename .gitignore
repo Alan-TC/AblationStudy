@@ -1,3 +1,5 @@
 __pycache__
 ablation/*/results/*/
 ablation/*/samples/*/
+ablation_v1/*/results/*/
+ablation_v1/*/samples/*/

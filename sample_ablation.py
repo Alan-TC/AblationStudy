@@ -23,6 +23,7 @@ def create_plugin_config(n_iter, batch_size, n_units_hidden):
                 n_units_hidden = n_units_hidden, # 32, 64, 128
                 dropout = 0.0,
             ),
+            random_state = 42,
             num_timesteps = 100,  # timesteps in diffusion
             dim_embed = 128,
             log_interval = 10
@@ -101,7 +102,7 @@ if __name__ == '__main__':
 
                 plugin.fit(loader)
 
-                X_synthetic = plugin.generate(sample_len)
+                X_synthetic = plugin.generate(sample_len, random_state = 42)
 
                 dataset_output_file = f'test_{curr_test}.csv'
                 model_output_file = f'test_{curr_test}.pkl'

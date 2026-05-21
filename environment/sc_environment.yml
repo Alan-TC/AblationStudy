@@ -9,3 +9,5 @@ dependencies:
     - opacus<=1.4.1
     - transformers<5.0.0
     - toml
+    - torchdata
+    - dgl
