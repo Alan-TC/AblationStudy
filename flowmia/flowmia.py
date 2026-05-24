@@ -48,11 +48,14 @@ class FlowMIA:
             - batch_size (int): Batch size for GAN training.
             - num_epochs (int): Number of GAN training epochs.
             - fcheckpoint (int): Checkpoint save frequency (in epochs).
+            - seed (int | None): Optional seed for reproducibility.
     """
 
     def __init__(self, config: dict):
         self.config = config
 
+        self.seed = config.get("seed")
+        self._set_seed(self.seed)
 
         os.makedirs(config["save_path"], exist_ok=True)
         self.save_path = config["save_path"]
@@ -107,7 +110,20 @@ class FlowMIA:
             batch_size=config["batch_size"],
             use_wgan=self.use_wgan,
             device=self.device,
+            seed=self.seed,
         )
+
+    def _set_seed(self, seed: int | None) -> None:
+        if seed is None:
+            return
+
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -161,7 +177,10 @@ class FlowMIA:
                 save_path=self.save_path,
             )
 
-        self.mia_results = self.flowmia_gan.membership_inference(test_size=test_size)
+        self.mia_results = self.flowmia_gan.membership_inference(
+            test_size=test_size,
+            seed=self.seed,
+        )
         print(f"FlowMIA-GAN results: AUC={self.mia_results['auc']:.4f}")
 
         if plot:
@@ -195,7 +214,7 @@ class FlowMIA:
             Tuple of (scores, auc) where ``scores`` is a 1-D array of
             log-density values and ``auc`` is the ROC-AUC of the attack.
         """
-        rng = np.random.default_rng(42)
+        rng = np.random.default_rng(self.seed) if self.seed is not None else np.random.default_rng()
         idx_m = rng.choice(len(self.X_member), size=test_size, replace=False)
         idx_nm = rng.choice(len(self.X_non_member), size=test_size, replace=False)
 
@@ -206,7 +225,8 @@ class FlowMIA:
             device=self.device,
             save_path=save_path,
             epochs=epochs,
-            load=load
+            load=load,
+            seed=self.seed,
         )
         print(f"DOMIAS results: AUC={auc:.4f}")
         return scores, auc
@@ -227,7 +247,7 @@ class FlowMIA:
             Tuple of (scores, auc) where ``scores`` is a 1-D array of
             negative-distance values and ``auc`` is the ROC-AUC of the attack.
         """
-        rng = np.random.default_rng(42)
+        rng = np.random.default_rng(self.seed) if self.seed is not None else np.random.default_rng()
         idx_m = rng.choice(len(self.X_member), size=test_size, replace=False)
         idx_nm = rng.choice(len(self.X_non_member), size=test_size, replace=False)
 

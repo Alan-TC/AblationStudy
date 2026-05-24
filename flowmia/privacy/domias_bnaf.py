@@ -26,7 +26,8 @@ def domias_bnaf(
     save_path: str = "",
     epochs: int = 10,
     reference_data: np.ndarray = None,
-    load=False
+    load=False,
+    seed: int | None = None,
 ) -> tuple[np.ndarray, float]:
     """
     Compute DOMIAS membership inference scores using a normalizing flow density model.
@@ -43,6 +44,7 @@ def domias_bnaf(
         synthetic_data: Pre-transformed synthetic samples used to fit the
             density model, shape (S, D).
         device: Torch device for model inference.
+        seed: Optional seed for reproducibility.
         reference_data: Optional pre-transformed reference (non-member)
             samples used to fit a calibration density model p_R. When
             provided, the score is the log density ratio log p_S / p_R.
@@ -65,7 +67,8 @@ def domias_bnaf(
         synthetic_data[mid:],
         epochs=epochs,
         load=load,
-        workspace=Path(save_path)
+        workspace=Path(save_path),
+        seed=seed,
     )
     log_p_S = compute_log_p_x(p_S_model, X_test_torch).detach().cpu().numpy()
 
@@ -78,7 +81,8 @@ def domias_bnaf(
             reference_data[mid_r:],
             epochs=epochs,
             load=load,
-            workspace=Path(save_path)
+            workspace=Path(save_path),
+            seed=seed,
         )
         log_p_R = compute_log_p_x(p_R_model, X_test_torch).detach().cpu().numpy()
         scores = log_p_S - log_p_R

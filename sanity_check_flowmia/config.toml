@@ -1,0 +1,11 @@
+[io]
+result_folder = 'sanity_check_flowmia'
+
+reference_dataset_input = 'datasets/cidds/real/cidds_test.csv'
+real_test_dataset_input = 'datasets/cidds/real/cidds_test.csv'
+real_train_dataset_input = 'datasets/cidds/real/cidds_train.csv'
+synthetic_dataset_input = 'datasets/cidds/real/cidds_train.csv'
+
+flowmiagan_save_folder = 'sanity_check_flowmia/results/flowmiagan'
+domias_save_folder = 'sanity_check_flowmia/results/domias'
+dcr_save_folder = 'sanity_check_flowmia/results/dcr'

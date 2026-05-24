@@ -121,6 +121,7 @@ class FlowMIA_GAN:
         use_wgan: If True, uses WGAN-GP loss; otherwise uses standard BCE.
         lambda_gp: Gradient penalty coefficient (WGAN-GP only).
         device: Torch device. Defaults to CUDA if available.
+        seed: Optional seed for reproducibility.
     """
 
     def __init__(
@@ -137,6 +138,7 @@ class FlowMIA_GAN:
         use_wgan: bool = True,
         lambda_gp: float = 10.0,
         device: torch.device = None,
+        seed: int | None = None,
     ):
         self.X_member = X_member
         self.X_non_member = X_non_member
@@ -150,12 +152,27 @@ class FlowMIA_GAN:
         self.lr_d = lr_d
         self.use_wgan = use_wgan
         self.lambda_gp = lambda_gp
+        self.seed = seed
 
         self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.input_dim = X_synth.shape[1]
 
         self.generator: Generator = None
         self.discriminator: Discriminator = None
+
+        self._set_seed(self.seed)
+
+    def _set_seed(self, seed: int | None) -> None:
+        if seed is None:
+            return
+
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
     # ------------------------------------------------------------------
     # WGAN-GP helper
@@ -222,7 +239,17 @@ class FlowMIA_GAN:
         fcheckpoint = min(fcheckpoint, epochs)
 
         dataset = TensorDataset(torch.tensor(self.X_synth, dtype=torch.float32))
-        dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=True, drop_last=True)
+        generator = None
+        if self.seed is not None:
+            generator = torch.Generator().manual_seed(self.seed)
+
+        dataloader = DataLoader(
+            dataset,
+            batch_size=self.batch_size,
+            shuffle=True,
+            drop_last=True,
+            generator=generator,
+        )
 
         self.generator = Generator(self.latent_dim, self.input_dim, self.generator_hidden).to(self.device)
         self.discriminator = Discriminator(self.input_dim, self.discriminator_hidden, use_spectral_norm=self.use_wgan).to(self.device)
@@ -329,7 +356,7 @@ class FlowMIA_GAN:
             scores = self.discriminator(tensor).cpu().numpy().flatten()
         return scores
 
-    def _random_score(self, seed: int = 42) -> np.ndarray:
+    def _random_score(self, seed: int | None = None) -> np.ndarray:
         """
         Score a random noise matrix to serve as a baseline reference.
 
@@ -339,7 +366,8 @@ class FlowMIA_GAN:
         Returns:
             1-D array of discriminator scores for random noise.
         """
-        rng = np.random.default_rng(seed)
+        rng_seed = self.seed if seed is None else seed
+        rng = np.random.default_rng(rng_seed) if rng_seed is not None else np.random.default_rng()
         noise = rng.random(self.X_synth.shape).astype(np.float32)
         return self._score(noise)
 
@@ -352,7 +380,8 @@ class FlowMIA_GAN:
         threshold_method: str = "statistical",
         threshold_value: float = 0.5,
         alpha: float = 0.05,
-        test_size: float = 1000
+        test_size: float = 1000,
+        seed: int | None = None,
     ) -> dict:
         """
         Perform membership inference using discriminator scores.
@@ -375,7 +404,8 @@ class FlowMIA_GAN:
             score statistics, and Wasserstein distances between groups.
         """
         
-        rng = np.random.default_rng(42)
+        rng_seed = self.seed if seed is None else seed
+        rng = np.random.default_rng(rng_seed) if rng_seed is not None else np.random.default_rng()
         idx_m = rng.choice(len(self.X_member), size=test_size, replace=False)
         idx_nm = rng.choice(len(self.X_non_member), size=test_size, replace=False)
         
@@ -383,7 +413,7 @@ class FlowMIA_GAN:
         print(s_mem.shape)
         s_non = self._score(self.X_non_member[idx_nm])
         s_syn = self._score(self.X_synth)
-        s_rnd = self._random_score()
+        s_rnd = self._random_score(seed=rng_seed)
 
         y_true = np.hstack([np.ones(len(s_mem)), np.zeros(len(s_non))])
         s_all = np.hstack([s_mem, s_non])

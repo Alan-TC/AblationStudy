@@ -23,12 +23,26 @@ NAF_PARAMS = {
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def _set_seed(seed: int | None) -> None:
+    if seed is None:
+        return
+
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+
 def load_dataset(
     data_train: Optional[np.ndarray] = None,
     data_valid: Optional[np.ndarray] = None,
     data_test: Optional[np.ndarray] = None,
     device: Any = DEVICE,
     batch_dim: int = 50,
+    seed: int | None = None,
 ) -> Tuple[
     torch.utils.data.DataLoader,
     torch.utils.data.DataLoader,
@@ -38,12 +52,13 @@ def load_dataset(
         dataset_train = torch.utils.data.TensorDataset(
             torch.from_numpy(data_train).float().to(device)
         )
+        rng = np.random.default_rng(seed) if seed is not None else np.random.default_rng()
         if data_valid is None:
             print("No validation set passed")
-            data_valid = np.random.randn(*data_train.shape)
+            data_valid = rng.standard_normal(size=data_train.shape)
         if data_test is None:
             print("No test set passed")
-            data_test = np.random.randn(*data_train.shape)
+            data_test = rng.standard_normal(size=data_train.shape)
 
         dataset_valid = torch.utils.data.TensorDataset(
             torch.from_numpy(data_valid).float().to(device)
@@ -55,8 +70,12 @@ def load_dataset(
     else:
         raise RuntimeError()
 
+    generator = None
+    if seed is not None:
+        generator = torch.Generator().manual_seed(seed)
+
     data_loader_train = torch.utils.data.DataLoader(
-        dataset_train, batch_size=batch_dim, shuffle=True
+        dataset_train, batch_size=batch_dim, shuffle=True, generator=generator
     )
 
     data_loader_valid = torch.utils.data.DataLoader(
@@ -279,7 +298,9 @@ def density_estimator_trainer(
     polyak: float = 0.998,
     save: bool = True,
     load: bool = True,
+    seed: int | None = None,
 ) -> Tuple[Callable, nn.Module]:
+    _set_seed(seed)
     print("Loading dataset..")
     data_loader_train, data_loader_valid, data_loader_test = load_dataset(
         data_train,
@@ -287,6 +308,7 @@ def density_estimator_trainer(
         data_test,
         device=device,
         batch_dim=batch_dim,
+        seed=seed,
     )
 
     if save:
