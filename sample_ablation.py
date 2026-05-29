@@ -63,6 +63,11 @@ if __name__ == '__main__':
         end_test = config['test']['end_test']
 
     hyperparameters = config['hyperparameters']
+
+    seeds = [42]
+
+    if 'seeds' in config['test']:
+        seeds = config['test']['seeds']
     
     print('Configuration Finished')
 
@@ -77,38 +82,39 @@ if __name__ == '__main__':
 
     with open(generate_tracker_path, 'a', encoding='utf-8', newline='') as f:
         if f.tell() == 0:
-            csv.writer(f).writerow(['test_idx', 'n_iter', 'batch_size', 'n_units_hidden' , 'dataset_file'])
+            csv.writer(f).writerow(['test_idx', 'seed', 'n_iter', 'batch_size', 'n_units_hidden' , 'dataset_file'])
 
 
     curr_test = 0
 
-    for n_iter in hyperparameters['n_iter']:
-        for batch_size in hyperparameters['batch_size']:
-            for n_units_hidden in hyperparameters['n_units_hidden']:
+    for seed in seeds:
+        for n_iter in hyperparameters['n_iter']:
+            for batch_size in hyperparameters['batch_size']:
+                for n_units_hidden in hyperparameters['n_units_hidden']:
 
-                curr_test += 1
-                jump_this_test = not (start_test <= curr_test <= end_test)
-                if jump_this_test:
-                    continue
-                
-                print()
-                print(curr_test, ' - ', 'n_iter:', n_iter, ' | batch_size:', batch_size, '| n_units_hidden:', n_units_hidden)
+                    curr_test += 1
+                    jump_this_test = not (start_test <= curr_test <= end_test)
+                    if jump_this_test:
+                        continue
+                    
+                    print()
+                    print(curr_test, ' - ', 'seed:', seed, ' | n_iter:', n_iter, ' | batch_size:', batch_size, '| n_units_hidden:', n_units_hidden)
 
-                plugin_params = create_plugin_config(n_iter=n_iter, 
-                                                     batch_size=batch_size, 
-                                                     n_units_hidden=n_units_hidden)
+                    plugin_params = create_plugin_config(n_iter=n_iter, 
+                                                        batch_size=batch_size, 
+                                                        n_units_hidden=n_units_hidden)
 
-                plugin = Plugins().get("ddpm", **plugin_params)
+                    plugin = Plugins().get("ddpm", **plugin_params)
 
-                plugin.fit(loader)
+                    plugin.fit(loader)
 
-                X_synthetic = plugin.generate(sample_len, random_state = 42)
+                    X_synthetic = plugin.generate(sample_len, random_state = seed)
 
-                dataset_output_file = f'test_{curr_test}.csv'
-                model_output_file = f'test_{curr_test}.pkl'
+                    dataset_output_file = f'test_{curr_test}.csv'
+                    model_output_file = f'test_{curr_test}.pkl'
 
-                X_synthetic.dataframe().to_csv(dataset_output_folder / dataset_output_file, index=False)
-                save_to_file(model_output_folder / model_output_file, plugin)
+                    X_synthetic.dataframe().to_csv(dataset_output_folder / dataset_output_file, index=False)
+                    save_to_file(model_output_folder / model_output_file, plugin)
 
-                with open(generate_tracker_path, 'a', encoding='utf-8', newline='') as f:
-                    csv.writer(f).writerow([curr_test, n_iter, batch_size, n_units_hidden, f"{dataset_output_file}"])
+                    with open(generate_tracker_path, 'a', encoding='utf-8', newline='') as f:
+                        csv.writer(f).writerow([curr_test, seed, n_iter, batch_size, n_units_hidden, f"{dataset_output_file}"])

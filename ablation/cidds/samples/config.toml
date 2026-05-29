@@ -8,6 +8,7 @@ results_output_sample_folder = 'ablation/cidds/samples/datasets'
 sample_len = 15000
 start_test = 0
 end_test = 0
+seeds = [1, 25, 42]
 
 [hyperparameters]
 n_iter = [50, 100, 150, 200]

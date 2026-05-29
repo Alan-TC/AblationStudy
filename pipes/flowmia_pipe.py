@@ -17,7 +17,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score
 
-def create_flowmia_config(member_path, non_member_path, synth_path, test_path, save_path):
+def create_flowmia_config(member_path, non_member_path, synth_path, test_path, save_path, num_epochs = 50, random_seed = 42):
     return {
         'member_path': member_path, # path dos membros
         'non_member_path': non_member_path, # path dos não-membros
@@ -28,13 +28,28 @@ def create_flowmia_config(member_path, non_member_path, synth_path, test_path, s
         'ip_cols': ['srcip', 'dstip'], # colunas de ip
         'label_col': 'label', # nome da coluna do rótulo 
         'batch_size': 1000, # número de amostrar por lote
-        'num_epochs': 50, # número de épocas
+        'num_epochs': num_epochs, # número de épocas
         'fcheckpoint': 100, # frequência para salvar o checkpoint
         'save_path': save_path,
         'use_wgan': True, # se deve usar WGAN ou GAN tradicional
         'test_size': 10000,
-        'seed': 42
+        'seed': random_seed
     }
+
+def execute_flowmia(flowmia_config):
+    flowmia = FlowMIA(config=flowmia_config)
+
+    scores = flowmia.flowmiagan(test_size = flowmia_config['test_size'])
+
+    flowmiagan_scores_aux = np.concatenate([scores_flowmiagan['score_members'], scores_flowmiagan['score_non_members']])
+    y_test = np.concatenate([np.ones(flowmia_config['test_size']), np.zeros(flowmia_config['test_size'])])
+
+    auc = roc_auc_score(y_test, flowmiagan_scores_aux)
+
+    return scores, auc
+
+def execute_domias(flowmia_config):
+    pass
 
 def execute_pipe(flowmia_config, domias_save_path):
     result_dict = {}

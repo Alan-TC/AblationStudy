@@ -3,4 +3,4 @@ ablation/*/results/*/
 ablation/*/samples/*/
 ablation_v1/*/results/*/
 ablation_v1/*/samples/*/
-sanity_check_flowmia/results/
+sanity_check_flowmia/*/results/

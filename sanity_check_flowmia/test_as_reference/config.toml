@@ -1,0 +1,15 @@
+[io]
+result_folder = 'sanity_check_flowmia/test_as_reference'
+
+reference_dataset_input = 'datasets/cidds/real/cidds_test.csv'
+real_test_dataset_input = 'datasets/cidds/real/cidds_test.csv'
+real_train_dataset_input = 'datasets/cidds/real/cidds_train.csv'
+synthetic_dataset_input = 'datasets/cidds/real/cidds_train.csv'
+
+flowmiagan_save_folder = 'sanity_check_flowmia/test_as_reference/results/flowmiagan'
+domias_save_folder = 'sanity_check_flowmia/test_as_reference/results/domias'
+dcr_save_folder = 'sanity_check_flowmia/test_as_reference/results/dcr'
+
+[test]
+num_epochs = [50, 100, 120]
+seeds = [1, 2, 25, 42, 123]
