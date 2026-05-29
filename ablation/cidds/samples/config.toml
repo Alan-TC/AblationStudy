@@ -6,11 +6,11 @@ results_output_sample_folder = 'ablation/cidds/samples/datasets'
 
 [test]
 sample_len = 15000
-start_test = 0
-end_test = 0
-seeds = [1, 25, 42]
+start_test = 1
+#end_test = 1
 
 [hyperparameters]
+seeds = [1, 25, 42]
 n_iter = [50, 100, 150, 200]
 batch_size = [50, 100, 500, 1000]
 n_units_hidden = [32, 64, 128]

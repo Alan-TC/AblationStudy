@@ -1,6 +1,5 @@
+.vscode
 __pycache__
-ablation/*/results/*/
-ablation/*/samples/*/
-ablation_v1/*/results/*/
-ablation_v1/*/samples/*/
+*/*/results/*/
+*/*/samples/*/
 sanity_check_flowmia/*/results/

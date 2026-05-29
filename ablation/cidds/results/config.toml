@@ -2,7 +2,7 @@
 ablation_result_folder = 'ablation/cidds/results'
 
 sample_dataset_folder = 'ablation/cidds/samples/datasets'
-sample_tracker_file = 'ablation/cidds/samples/generate_tracker.csv'
+sample_tracker_file = 'ablation/cidds/samples/sample_tracker.csv'
 
 reference_dataset_input = 'datasets/cidds/reference/ton.csv'
 real_test_dataset_input = 'datasets/cidds/real/cidds_test.csv'

@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+repo_root = Path(__file__).resolve().parents[1]
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
 from utils import utils
 from pipes import flowmia_pipe as fmp
 
@@ -35,13 +42,13 @@ if __name__ == '__main__':
     if 'end_test' in config['test']:
         end_test = config['test']['end_test']
 
-    generate_tracker = pd.read_csv(sample_tracker_file)
+    sample_tracker = pd.read_csv(sample_tracker_file)
 
-    gen_mask = generate_tracker['test_idx'].between(start_test, end_test)
-    generate_tracker = generate_tracker[gen_mask]
+    gen_mask = sample_tracker['test_idx'].between(start_test, end_test)
+    sample_tracker = sample_tracker[gen_mask]
 
     aux_columns = ['test_idx', 'dataset_file']
-    hyper_columns = generate_tracker.columns.drop(aux_columns).to_list()
+    hyper_columns = sample_tracker.columns.drop(aux_columns).to_list()
     flowmiagan_columns = ['flowmiagan_auc']
     domias_columns = ['domias_auc']
     dcr_columns = ['dcr_auc']
@@ -55,7 +62,7 @@ if __name__ == '__main__':
     else:
         ablation_df = pd.read_csv(ablation_csv)
 
-    for index, row in generate_tracker.iterrows():
+    for index, row in sample_tracker.iterrows():
         row_result = {}
 
         aux = row[aux_columns].to_dict()
@@ -78,8 +85,8 @@ if __name__ == '__main__':
         pipe_result = fmp.execute_pipe(flowmia_config, domias_save_path)
 
         scores_flowmiagan = pipe_result["flowmiagan"]
-        scores_domias, auc_domias = pipe_result["domias"]
-        scores_dcr, auc_dcr = pipe_result["dcr"]
+        scores_domias= pipe_result["domias"]
+        scores_dcr= pipe_result["dcr"]
         utility_dict = pipe_result["utility_dict"]
 
         np.save(save_path / f'test_{aux["test_idx"]}.npy', scores_flowmiagan)

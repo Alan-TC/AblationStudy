@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+repo_root = Path(__file__).resolve().parents[1]
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+
 from utils import utils
 
 import csv
@@ -66,8 +73,8 @@ if __name__ == '__main__':
 
     seeds = [42]
 
-    if 'seeds' in config['test']:
-        seeds = config['test']['seeds']
+    if 'seeds' in hyperparameters:
+        seeds = hyperparameters['seeds']
     
     print('Configuration Finished')
 
@@ -78,9 +85,9 @@ if __name__ == '__main__':
     print('DataLodader Created')
 
 
-    generate_tracker_path = tracker_output_folder / 'generate_tracker.csv'
+    sample_tracker_path = tracker_output_folder / 'sample_tracker.csv'
 
-    with open(generate_tracker_path, 'a', encoding='utf-8', newline='') as f:
+    with open(sample_tracker_path, 'a', encoding='utf-8', newline='') as f:
         if f.tell() == 0:
             csv.writer(f).writerow(['test_idx', 'seed', 'n_iter', 'batch_size', 'n_units_hidden' , 'dataset_file'])
 
@@ -116,5 +123,5 @@ if __name__ == '__main__':
                     X_synthetic.dataframe().to_csv(dataset_output_folder / dataset_output_file, index=False)
                     save_to_file(model_output_folder / model_output_file, plugin)
 
-                    with open(generate_tracker_path, 'a', encoding='utf-8', newline='') as f:
+                    with open(sample_tracker_path, 'a', encoding='utf-8', newline='') as f:
                         csv.writer(f).writerow([curr_test, seed, n_iter, batch_size, n_units_hidden, f"{dataset_output_file}"])

@@ -1,4 +1,0 @@
-test_idx,n_iter,batch_size,n_units_hidden,dataset_file
-1,50,50,32,test_1.csv
-2,50,50,64,test_2.csv
-3,50,50,128,test_3.csv

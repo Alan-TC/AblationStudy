@@ -1,0 +1,2 @@
+test_idx,seed,n_iter,batch_size,n_units_hidden,flowmiagan_auc,domias_auc,dcr_auc,accuracy,precision,recall,f1-score
+1,1,50,50,32,0.584227755,0.8108728999999999,0.5528028749999999,0.5138,0.2569,0.5,0.33941075439291846

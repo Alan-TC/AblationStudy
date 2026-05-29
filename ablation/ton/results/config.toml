@@ -1,0 +1,17 @@
+[io]
+ablation_result_folder = 'ablation/ton/results'
+
+sample_dataset_folder = 'ablation/ton/samples/datasets'
+sample_tracker_file = 'ablation/ton/samples/sample_tracker.csv'
+
+reference_dataset_input = 'datasets/ton/reference/cidds.csv'
+real_test_dataset_input = 'datasets/ton/real/ton_test.csv'
+real_train_dataset_input = 'datasets/ton/real/ton_train.csv'
+
+flowmiagan_save_folder = 'ablation/ton/results/flowmiagan'
+domias_save_folder = 'ablation/ton/results/domias'
+dcr_save_folder = 'ablation/ton/results/dcr'
+
+[test]
+start_test = 1
+# end_test = 24
