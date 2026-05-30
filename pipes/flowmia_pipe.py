@@ -36,10 +36,10 @@ def execute_flowmia(flowmia_config):
 
     return scores, auc
 
-def execute_domias(flowmia_config, domias_save_path):
+def execute_domias(flowmia_config, domias_save_path, epochs=30):
     flowmia = FlowMIA(config=flowmia_config)
 
-    scores, _ = flowmia.domias(test_size=flowmia_config['test_size'], save_path=domias_save_path, epochs=30)
+    scores, _ = flowmia.domias(test_size=flowmia_config['test_size'], save_path=domias_save_path, epochs=epochs)
 
     y_test = np.concatenate([np.ones(flowmia_config['test_size']), np.zeros(flowmia_config['test_size'])])
     auc = roc_auc_score(y_test, scores)

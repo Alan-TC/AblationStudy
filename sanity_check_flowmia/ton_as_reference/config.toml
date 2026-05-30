@@ -11,5 +11,5 @@ domias_save_folder = 'sanity_check_flowmia/ton_as_reference/results/domias'
 dcr_save_folder = 'sanity_check_flowmia/ton_as_reference/results/dcr'
 
 [test]
-num_epochs = [50, 100, 120]
+num_epochs = [30, 50, 100, 120]
 seeds = [1, 2, 25, 42, 123]

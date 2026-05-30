@@ -56,26 +56,15 @@ if __name__ == '__main__':
     np.save(dcr_save_folder / f'scores.npy', scores_dcr)
 
     for seed in seeds_test:
-        # A seed infuencia no DOMIAS
-        config_domias = fp.create_flowmia_config(
-            member_path=member_path, 
-            non_member_path=non_member_path, 
-            synth_path=synthetic_path,
-            test_path=test_path, random_seed=seed)
-        
-        domias_save_folder = utils.validate_folder(config['io']['domias_save_folder'])
-        domias_save_folder = utils.validate_folder(domias_save_folder / f'seed_{seed}')
-
-        scores_domias, auc_domias = fp.execute_domias(config_domias, domias_save_folder)
-
-        np.save(domias_save_folder / f'scores.npy', scores_domias)
-
         for num_epoch in num_epochs:
             test_id += 1
             test_name = f'test_{test_id}'
 
             flowmiagan_save_folder = utils.validate_folder(config['io']['flowmiagan_save_folder'])
             flowmiagan_save_folder = utils.validate_folder(flowmiagan_save_folder / test_name)
+
+            domias_save_folder = utils.validate_folder(config['io']['domias_save_folder'])
+            domias_save_folder = utils.validate_folder(domias_save_folder / test_name)
 
             flowmia_config = fp.create_flowmia_config(member_path=member_path, 
                                                     non_member_path=non_member_path,
@@ -87,6 +76,10 @@ if __name__ == '__main__':
 
             scores_flowmiagan, auc_flowmiagan = fp.execute_flowmia(flowmia_config)
             np.save(flowmiagan_save_folder / f'scores.npy', scores_flowmiagan)
+
+            scores_domias, auc_domias = fp.execute_domias(flowmia_config, domias_save_folder, epochs=num_epoch)
+
+            np.save(domias_save_folder / f'scores.npy', scores_domias)
 
             row_result = {}
             row_result['test_id'] = test_id

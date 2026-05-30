@@ -1,2 +1,0 @@
-test_id,num_epochs,seed,flowmiagan_auc,domias_auc,dcr_auc
-2,50,1,0.44441093499999995,0.810443205,0.97755
