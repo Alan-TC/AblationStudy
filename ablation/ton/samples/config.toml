@@ -1,5 +1,5 @@
 [io]
-real_dataset_input = 'datasets/ton/real/ton_test.csv'
+real_dataset_input = 'datasets/ton/real/ton_train.csv'
 tracker_file_output_folder = 'ablation/ton/samples'
 results_output_model_folder = 'ablation/ton/samples/models'
 results_output_sample_folder = 'ablation/ton/samples/datasets'
@@ -10,7 +10,7 @@ start_test = 1
 #end_test = 1
 
 [hyperparameters]
-seeds = [1, 25, 42]
+seeds = [1, 25, 42, 100]
 n_iter = [50, 100, 150, 200]
 batch_size = [50, 100, 500, 1000]
 n_units_hidden = [32, 64, 128]

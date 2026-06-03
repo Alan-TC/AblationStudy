@@ -1,5 +1,5 @@
 [io]
-real_dataset_input = 'datasets/cidds/real/cidds_test.csv'
+real_dataset_input = 'datasets/cidds/real/cidds_train.csv'
 tracker_file_output_folder = 'ablation/cidds/samples'
 results_output_model_folder = 'ablation/cidds/samples/models'
 results_output_sample_folder = 'ablation/cidds/samples/datasets'
